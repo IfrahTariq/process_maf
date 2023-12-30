@@ -533,195 +533,195 @@ def improve(
 
     # issue
     to_add = []
-    for val in vcf[["dbsnp_cfl", "dbsnp_asp"]].values:
-        if val[0] == "Y":
-            to_add.append("assembly_conflict")
-        elif val[1] == "Y":
-            to_add.append("as_specific")
-        else:
-            to_add.append("")
-    vcf["issues"] = to_add
-    todrop = ["dbsnp_asp", "dbsnp_cfl"]
+    # for val in vcf[["dbsnp_cfl", "dbsnp_asp"]].values:
+    #     if val[0] == "Y":
+    #         to_add.append("assembly_conflict")
+    #     elif val[1] == "Y":
+    #         to_add.append("as_specific")
+    #     else:
+    #         to_add.append("")
+    # vcf["issues"] = to_add
+    # todrop = ["dbsnp_asp", "dbsnp_cfl"]
 
-    # defining hotspot
-    vcf["cosmic_hotspot"] = ""
+    # # defining hotspot
+    # vcf["cosmic_hotspot"] = ""
 
-    hotspot_l = []
-    for cosmic_over in list(
-        set(
-            vcf[vcf["cosmic_overlapping_mutations"] != ""][
-                "cosmic_overlapping_mutations"
-            ]
-        )
-    ):
-        # finding the number in " p.I517T(13)", " p.I517T(13), p.G202G(15), p.?(56)"
-        res = sum(
-            [
-                int(val.group(0)[1:-1])
-                for val in re.finditer(r"([(])\d+([)])", cosmic_over)
-            ]
-        )
-        if res > min_count_hotspot:
-            hotspot_l.append(cosmic_over)
-    loc = vcf["cosmic_overlapping_mutations"].isin(hotspot_l)
-    vcf.loc[loc, "cosmic_hotspot"] = "Y"
+    # hotspot_l = []
+    # for cosmic_over in list(
+    #     set(
+    #         vcf[vcf["cosmic_overlapping_mutations"] != ""][
+    #             "cosmic_overlapping_mutations"
+    #         ]
+    #     )
+    # ):
+    #     # finding the number in " p.I517T(13)", " p.I517T(13), p.G202G(15), p.?(56)"
+    #     res = sum(
+    #         [
+    #             int(val.group(0)[1:-1])
+    #             for val in re.finditer(r"([(])\d+([)])", cosmic_over)
+    #         ]
+    #     )
+    #     if res > min_count_hotspot:
+    #         hotspot_l.append(cosmic_over)
+    # loc = vcf["cosmic_overlapping_mutations"].isin(hotspot_l)
+    # vcf.loc[loc, "cosmic_hotspot"] = "Y"
 
-    # ccle_deleterious
-    vcf["ccle_deleterious"] = ""
-    loc = vcf["gencode_34_variantclassification"].isin(
-        [
-            "DE_NOVO_START_OUT_FRAME",
-            "DE_NOVO_START_IN_FRAME",
-            "FRAME_SHIFT_DEL",
-            "FRAME_SHIFT_INS",
-            "START_CODON_INS",
-            "START_CODON_DEL",
-            "NONSTOP",
-            "NONSENSE",
-        ]
-    )
-    vcf.loc[
-        loc,
-        "ccle_deleterious",
-    ] = "Y"
-    vcf["likely_lof"] = ""
-    vcf.loc[loc, "likely_lof"] = "Y"
+    # # ccle_deleterious
+    # vcf["ccle_deleterious"] = ""
+    # loc = vcf["gencode_34_variantclassification"].isin(
+    #     [
+    #         "DE_NOVO_START_OUT_FRAME",
+    #         "DE_NOVO_START_IN_FRAME",
+    #         "FRAME_SHIFT_DEL",
+    #         "FRAME_SHIFT_INS",
+    #         "START_CODON_INS",
+    #         "START_CODON_DEL",
+    #         "NONSTOP",
+    #         "NONSENSE",
+    #     ]
+    # )
+    # vcf.loc[
+    #     loc,
+    #     "ccle_deleterious",
+    # ] = "Y"
+    # vcf["likely_lof"] = ""
+    # vcf.loc[loc, "likely_lof"] = "Y"
 
-    # structural_relation
-    vcf["structural_relation"] = vcf["cgc_translocation_partner"]
-    loc = (vcf["cgc_translocation_partner"] == "") & ~(
-        vcf["cosmicfusion_fusion_genes"] == ""
-    )
-    vcf.loc[loc, "structural_relation"] = (
-        vcf.loc[loc, "cosmicfusion_fusion_genes"]
-        .str.split("_")
-        .str[2]
-        .str.split("{EN")
-        .str[0]
-    )
+    # # structural_relation
+    # vcf["structural_relation"] = vcf["cgc_translocation_partner"]
+    # loc = (vcf["cgc_translocation_partner"] == "") & ~(
+    #     vcf["cosmicfusion_fusion_genes"] == ""
+    # )
+    # vcf.loc[loc, "structural_relation"] = (
+    #     vcf.loc[loc, "cosmicfusion_fusion_genes"]
+    #     .str.split("_")
+    #     .str[2]
+    #     .str.split("{EN")
+    #     .str[0]
+    # )
 
-    # DNArepair
-    vcf["dna_repair"] = ""
-    loc = ~(vcf["dnarepairgenes_activity_linked_to_omim"] == "")
-    vcf["dna_repair"] = (
-        vcf.loc[loc, "dnarepairgenes_accession_number_linked_to_ncbi_entrez"]
-        + ": "
-        + vcf.loc[loc, "dnarepairgenes_activity_linked_to_omim"]
-    )
-    vcf["dna_repair"] = vcf["dna_repair"].replace(
-        {": ,%3B,,": "", ": ,%3B,": "", np.nan: ""}
-    )
+    # # DNArepair
+    # vcf["dna_repair"] = ""
+    # loc = ~(vcf["dnarepairgenes_activity_linked_to_omim"] == "")
+    # vcf["dna_repair"] = (
+    #     vcf.loc[loc, "dnarepairgenes_accession_number_linked_to_ncbi_entrez"]
+    #     + ": "
+    #     + vcf.loc[loc, "dnarepairgenes_activity_linked_to_omim"]
+    # )
+    # vcf["dna_repair"] = vcf["dna_repair"].replace(
+    #     {": ,%3B,,": "", ": ,%3B,": "", np.nan: ""}
+    # )
 
-    todrop.extend(
-        [
-            "dnarepairgenes_accession_number_linked_to_ncbi_entrez",
-            "dnarepairgenes_activity_linked_to_omim",
-        ]
-    )
-    ############################ ADDITIONNAL ANNOTATOR #########################
+    # todrop.extend(
+    #     [
+    #         "dnarepairgenes_accession_number_linked_to_ncbi_entrez",
+    #         "dnarepairgenes_activity_linked_to_omim",
+    #     ]
+    # )
+    # ############################ ADDITIONNAL ANNOTATOR #########################
 
-    vcf["associated_with"] = ""
+    # vcf["associated_with"] = ""
 
-    if "oc_oncokb_dm__oncogenic" in vcf.columns.tolist():
-        # defining drivers
-        vcf["driver"] = ""
-        loc = vcf["oc_oncokb_dm__oncogenic"] == "Oncogenic"
-        vcf.loc[loc, "driver"] = "Y"
+    # if "oc_oncokb_dm__oncogenic" in vcf.columns.tolist():
+    #     # defining drivers
+    #     vcf["driver"] = ""
+    #     loc = vcf["oc_oncokb_dm__oncogenic"] == "Oncogenic"
+    #     vcf.loc[loc, "driver"] = "Y"
 
-        vcf["likely_driver"] = ""
-        vcf.loc[loc, "likely_driver"] = "Y"
-        loc = vcf["oc_oncokb_dm__oncogenic"] == "Likely Oncogenic"
-        vcf.loc[loc, "likely_driver"] = "Y"
+    #     vcf["likely_driver"] = ""
+    #     vcf.loc[loc, "likely_driver"] = "Y"
+    #     loc = vcf["oc_oncokb_dm__oncogenic"] == "Likely Oncogenic"
+    #     vcf.loc[loc, "likely_driver"] = "Y"
 
-        # clinical significance
-        vcf["clinically_significant"] = ""
-        loc = ~(
-            (vcf["oc_oncokb_dm__highestprognosticimplicationlevel"] == "")
-            & (vcf["oc_oncokb_dm__highestdiagnosticimplicationlevel"] == "")
-            & (vcf["oc_oncokb_dm__highestsensitivelevel"] == "")
-            & (vcf["oc_oncokb_dm__highestresistancelevel"] == "")
-        )
-        vcf.loc[loc, "clinically_significant"] = "Y"
+    #     # clinical significance
+    #     vcf["clinically_significant"] = ""
+    #     loc = ~(
+    #         (vcf["oc_oncokb_dm__highestprognosticimplicationlevel"] == "")
+    #         & (vcf["oc_oncokb_dm__highestdiagnosticimplicationlevel"] == "")
+    #         & (vcf["oc_oncokb_dm__highestsensitivelevel"] == "")
+    #         & (vcf["oc_oncokb_dm__highestresistancelevel"] == "")
+    #     )
+    #     vcf.loc[loc, "clinically_significant"] = "Y"
 
-        # lof
-        vcf["lof"] = ""
-        loc = vcf["oc_oncokb_dm__knowneffect"] == "Loss-of-function"
-        vcf.loc[loc, "lof"] = "Y"
+    #     # lof
+    #     vcf["lof"] = ""
+    #     loc = vcf["oc_oncokb_dm__knowneffect"] == "Loss-of-function"
+    #     vcf.loc[loc, "lof"] = "Y"
 
-        # likely lof
-        vcf.loc[loc, "likely_lof"] = "Y"
-        loc = vcf["oc_oncokb_dm__knowneffect"] == "Likely Loss-of-function"  # |
-        vcf.loc[loc, "likely_lof"] = "Y"
+    #     # likely lof
+    #     vcf.loc[loc, "likely_lof"] = "Y"
+    #     loc = vcf["oc_oncokb_dm__knowneffect"] == "Likely Loss-of-function"  # |
+    #     vcf.loc[loc, "likely_lof"] = "Y"
 
-        # gof
-        vcf["gof"] = ""
-        loc = vcf["oc_oncokb_dm__knowneffect"] == "Gain-of-function"
-        vcf["gof"] = "Y"
+    #     # gof
+    #     vcf["gof"] = ""
+    #     loc = vcf["oc_oncokb_dm__knowneffect"] == "Gain-of-function"
+    #     vcf["gof"] = "Y"
 
-        # likely_gof
-        vcf["likely_gof"] = ""
-        vcf.loc[loc, "likely_gof"] = "Y"
-        loc = vcf["oc_oncokb_dm__knowneffect"] == "Likely Gain-of-function"  # |
-        vcf.loc[loc, "likely_gof"] = "Y"
+    #     # likely_gof
+    #     vcf["likely_gof"] = ""
+    #     vcf.loc[loc, "likely_gof"] = "Y"
+    #     loc = vcf["oc_oncokb_dm__knowneffect"] == "Likely Gain-of-function"  # |
+    #     vcf.loc[loc, "likely_gof"] = "Y"
 
-    # clinical evidence:
-    # https://civic.readthedocs.io/en/latest/model/variants/evidence_score.html
-    if "oc_civic__clinical_a_score" in vcf.columns.tolist():
-        if "driver" not in vcf.columns.tolist():
-            vcf["driver"] = ""
-        loc = (~vcf["oc_civic__clinical_a_score"].isnull()) & (
-            vcf["multiallelic"] != "Y"
-        )
-        subvcf = vcf.loc[loc][["oc_civic__clinical_a_score"]]
-        vcf.loc[
-            subvcf[subvcf["oc_civic__clinical_a_score"].astype(float) >= 8].index,
-            "driver",
-        ] = "Y"
+    # # clinical evidence:
+    # # https://civic.readthedocs.io/en/latest/model/variants/evidence_score.html
+    # if "oc_civic__clinical_a_score" in vcf.columns.tolist():
+    #     if "driver" not in vcf.columns.tolist():
+    #         vcf["driver"] = ""
+    #     loc = (~vcf["oc_civic__clinical_a_score"].isnull()) & (
+    #         vcf["multiallelic"] != "Y"
+    #     )
+    #     subvcf = vcf.loc[loc][["oc_civic__clinical_a_score"]]
+    #     vcf.loc[
+    #         subvcf[subvcf["oc_civic__clinical_a_score"].astype(float) >= 8].index,
+    #         "driver",
+    #     ] = "Y"
 
-        if "likely_driver" not in vcf.columns.tolist():
-            vcf["likely_driver"] = ""
-        loc = ~vcf["oc_civic__clinical_a_score"].isnull()
-        vcf.loc[loc, "likely_driver"] = "Y"
+    #     if "likely_driver" not in vcf.columns.tolist():
+    #         vcf["likely_driver"] = ""
+    #     loc = ~vcf["oc_civic__clinical_a_score"].isnull()
+    #     vcf.loc[loc, "likely_driver"] = "Y"
 
-    # lof more
-    if "oc_brca1_func_assay__score" in vcf.columns.tolist():
-        if "lof" not in vcf.columns.tolist():
-            vcf["lof"] = ""
-        loc = (vcf["oc_brca1_func_assay__score"] != "") & (vcf["multiallelic"] != "Y")
-        loc = vcf[loc][
-            vcf[loc]["oc_brca1_func_assay__score"].astype(float) <= -1.328
-        ].index
-        vcf.loc[loc, "lof"] = "Y"
+    # # lof more
+    # if "oc_brca1_func_assay__score" in vcf.columns.tolist():
+    #     if "lof" not in vcf.columns.tolist():
+    #         vcf["lof"] = ""
+    #     loc = (vcf["oc_brca1_func_assay__score"] != "") & (vcf["multiallelic"] != "Y")
+    #     loc = vcf[loc][
+    #         vcf[loc]["oc_brca1_func_assay__score"].astype(float) <= -1.328
+    #     ].index
+    #     vcf.loc[loc, "lof"] = "Y"
 
-    # likely lof in DANN
-    if (
-        "oc_dann__score" in vcf.columns.tolist()
-        or "oc_dann_coding__dann_coding_score" in vcf.columns.tolist()
-    ):
-        name_score = (
-            "oc_dann__score"
-            if "oc_dann__score" in vcf.columns.tolist()
-            else "oc_dann_coding__dann_coding_score"
-        )
-        # http://www.enlis.com/blog/2015/03/17/the-best-variant-prediction-method-that-no-one-is-using/
-        loc = (vcf[name_score] != "") & (vcf["multiallelic"] != "Y")
-        loc = vcf[loc][vcf[loc][name_score].astype(float) >= 0.96].index
-        vcf.loc[loc, "likely_lof"] = "Y"
+    # # likely lof in DANN
+    # if (
+    #     "oc_dann__score" in vcf.columns.tolist()
+    #     or "oc_dann_coding__dann_coding_score" in vcf.columns.tolist()
+    # ):
+    #     name_score = (
+    #         "oc_dann__score"
+    #         if "oc_dann__score" in vcf.columns.tolist()
+    #         else "oc_dann_coding__dann_coding_score"
+    #     )
+    #     # http://www.enlis.com/blog/2015/03/17/the-best-variant-prediction-method-that-no-one-is-using/
+    #     loc = (vcf[name_score] != "") & (vcf["multiallelic"] != "Y")
+    #     loc = vcf[loc][vcf[loc][name_score].astype(float) >= 0.96].index
+    #     vcf.loc[loc, "likely_lof"] = "Y"
 
-    # lof revel
-    if "oc_revel__score" in vcf.columns.tolist():
-        # trancript lof
-        loc = (vcf["oc_revel__score"] != "") & (vcf["multiallelic"] != "Y")
-        vcf["transcript_likely_lof"] = ""
-        trscs = []
-        for k, val in vcf[loc][["oc_revel__all"]].iterrows():
-            trsc = ""
-            for v in [i.split(",") for i in val.oc_revel__all[2:-2].split("],[")]:
-                if float(v[1]) >= 0.7:
-                    trsc += v[0][1:-1] + ";"
-            trscs.append(trsc)
+    # # lof revel
+    # if "oc_revel__score" in vcf.columns.tolist():
+    #     # trancript lof
+    #     loc = (vcf["oc_revel__score"] != "") & (vcf["multiallelic"] != "Y")
+    #     vcf["transcript_likely_lof"] = ""
+    #     trscs = []
+    #     for k, val in vcf[loc][["oc_revel__all"]].iterrows():
+    #         trsc = ""
+    #         for v in [i.split(",") for i in val.oc_revel__all[2:-2].split("],[")]:
+    #             if float(v[1]) >= 0.7:
+    #                 trsc += v[0][1:-1] + ";"
+    #         trscs.append(trsc)
 
-        vcf.loc[loc, "transcript_likely_lof"] = trscs
+    #     vcf.loc[loc, "transcript_likely_lof"] = trscs
 
     # additional defining drivers --> TRAINED ON SOMATIC SO DOING NONSENSE
     # if (
@@ -843,7 +843,7 @@ def improve(
     # quality_score
 
     # rename columns
-    vcf = vcf.drop(columns=todrop).rename(columns=torename)
+    # vcf = vcf.drop(columns=todrop).rename(columns=torename)
 
     return vcf
 
