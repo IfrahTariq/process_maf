@@ -153,14 +153,14 @@ def main(args=None):
             tobreak = True
 
         # improve
-        # vcf_file = improve(
-        #     vcf_file,
-        #     force_list=["oc_genehancer__feature_name"],
-        #     split_multiallelic=use_multi,
-        #     oncogene_list=oncogene,
-        #     tumor_suppressor_list=tumor_suppressor_list,
-        #     civic_df=civic_df,
-        # )
+        vcf_file = improve(
+            vcf_file,
+            force_list=["oc_genehancer__feature_name"],
+            split_multiallelic=use_multi,
+            oncogene_list=oncogene,
+            tumor_suppressor_list=tumor_suppressor_list,
+            civic_df=civic_df,
+        )
 
         # checking we have the same set of columns
         cols = vcf_file.columns.tolist()
@@ -183,36 +183,36 @@ def main(args=None):
             pa.Table.from_pandas(vcf_file), root_path=sample_name + "-maf-full.parquet"
         )
 
-        # # save maf
-        # print("saving maf")
-        # if i == 0:
-        #     to_maf(
-        #         vcf_file,
-        #         sample_name,
-        #         only_somatic=True,
-        #         only_coding=True,
-        #         whitelist=whitelist,
-        #         drop_multi=True,
-        #         oncogenic_list=oncogene,
-        #         tumor_suppressor_list=tumor_suppressor_list,
-        #         tokeep={**vcf.TOKEEP_BASE, **vcf.TOKEEP_ADD},
-        #         index=False,
-        #     )
-        # else:
-        #     to_maf(
-        #         vcf_file,
-        #         sample_name,
-        #         only_somatic=True,
-        #         only_coding=True,
-        #         whitelist=whitelist,
-        #         drop_multi=True,
-        #         mode="a",
-        #         header=False,
-        #         oncogenic_list=oncogene,
-        #         tumor_suppressor_list=tumor_suppressor_list,
-        #         tokeep={**vcf.TOKEEP_BASE, **vcf.TOKEEP_ADD},
-        #         index=False,
-        #     )
+        # save maf
+        print("saving maf")
+        if i == 0:
+            to_maf(
+                vcf_file,
+                sample_name,
+                only_somatic=True,
+                only_coding=True,
+                whitelist=whitelist,
+                drop_multi=True,
+                oncogenic_list=oncogene,
+                tumor_suppressor_list=tumor_suppressor_list,
+                tokeep={TOKEEP_BASE, TOKEEP_ADD},
+                index=False,
+            )
+        else:
+            to_maf(
+                vcf_file,
+                sample_name,
+                only_somatic=True,
+                only_coding=True,
+                whitelist=whitelist,
+                drop_multi=True,
+                mode="a",
+                header=False,
+                oncogenic_list=oncogene,
+                tumor_suppressor_list=tumor_suppressor_list,
+                tokeep={TOKEEP_BASE, TOKEEP_ADD},
+                index=False,
+            )
         del vcf_file
         if tobreak:
             break
