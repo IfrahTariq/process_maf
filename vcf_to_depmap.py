@@ -459,9 +459,9 @@ def improve(
     # while FORMAT fields are for individual samples.
     # https://github.com/broadinstitute/gatk/issues/6067
     # here we are dropping the one in INFO
-    if vcf[["DP"]].shape[1] > 1:
-        vcf["DP_keep"] = vcf["DP"].iloc[:, 1]
-        vcf = vcf.drop(columns=["DP"]).rename(columns={"DP_keep": "DP"})
+    # if vcf[["DP"]].shape[1] > 1:
+    #     vcf["DP_keep"] = vcf["DP"].iloc[:, 1]
+    #     vcf = vcf.drop(columns=["DP"]).rename(columns={"DP_keep": "DP"})
 
     # solving the special characters
     for val in vcf.columns[9:]:
