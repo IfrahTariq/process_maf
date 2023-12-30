@@ -620,7 +620,7 @@ def improve(
     # )
     # ############################ ADDITIONNAL ANNOTATOR #########################
 
-    # vcf["associated_with"] = ""
+    vcf["associated_with"] = ""
 
     # if "oc_oncokb_dm__oncogenic" in vcf.columns.tolist():
     #     # defining drivers
