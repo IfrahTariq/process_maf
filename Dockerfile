@@ -22,6 +22,7 @@ RUN conda create -qy -p /usr/local \
     pyarrow \
     pandas \
     argparse \
+    seaborn \
 
 # Deploy the minimal OS and tools into a clean target layer
 FROM scratch
