@@ -887,92 +887,92 @@ def to_maf(
     if drop_multi:
         #  drops 2% of the variants
         vcf = vcf[vcf["multiallelic"] != "Y"]
-
-    loc = (
-        # drops 30% of the variants
-        (vcf["af"].astype(float) >= min_freq)
-        & (vcf["ad"].str.split(",").str[1].astype(int) >= min_depth)
-        # drops 90% of the variants
-        & ~(
-            (vcf["map_qual"] == "Y")
-            | (vcf["slippage"] == "Y")
-            | (vcf["strand_bias"] == "Y")
-            | (vcf["weak_evidence"] == "Y")
-            | (vcf["clustered_events"] == "Y")
-            | (vcf["base_qual"] == "Y")
-            # | vcf["fragments"]
-        )
-    )
+    print(vcf.columns.tolist())
+    # loc = (
+    #     # drops 30% of the variants
+    #     (vcf["af"].astype(float) >= min_freq) ##TODO
+    #     & (vcf["ad"].str.split(",").str[1].astype(int) >= min_depth) ##TODO
+    #     # drops 90% of the variants
+    #     & ~(
+    #         (vcf["map_qual"] == "Y")
+    #         | (vcf["slippage"] == "Y")
+    #         | (vcf["strand_bias"] == "Y")
+    #         | (vcf["weak_evidence"] == "Y")
+    #         | (vcf["clustered_events"] == "Y")
+    #         | (vcf["base_qual"] == "Y")
+    #         # | vcf["fragments"]
+    #     )
+    # )
 
     # creating count columns
-    vcf[["ref_count", "alt_count"]] = np.array(vcf["ad"].str.split(",").to_list())
+    # vcf[["ref_count", "alt_count"]] = np.array(vcf["ad"].str.split(",").to_list())
 
-    if whitelist:
-        # if missing columns print issue
-        if (
-            len(
-                set(
-                    [
-                        "driver",
-                        "likely_gof",
-                        "clinically_significant",
-                        "lof",
-                        "likely_lof",
-                        "likely_driver",
-                    ]
-                )
-                - set(vcf.columns)
-            )
-            > 0
-        ):
-            print(
-                "missing columns to perform whitelisting",
-                set(tokeep) - set(vcf.columns),
-            )
-        print("performing whitelisting")
-        important = (
-            (vcf["driver"] == "Y")
-            # | (vcf["gof"] == "Y")
-            # TODO: could define it with civic if grabbdd drugs in addition to diseases
-            # | (vcf["clinically_significant"] == "Y")
-            | (vcf["lof"] == "Y")
-            | (
-                (vcf["likely_lof"] == "Y")
-                & (vcf["hugo_symbol"].isin(tumor_suppressor_list))
-            )
-            | (
-                (vcf["likely_driver"] == "Y")
-                & vcf["hugo_symbol"].isin(oncogenic_list + tumor_suppressor_list)
-            )
-        )
-    else:
-        important = vcf["is_coding"].isna()
-    if only_coding:
-        # drops 99.5% of the variants
-        print("only keeping coding mutations")
-        loc = loc & (
-            (vcf["is_coding"] == "Y")
-            | (vcf["variant_info"] == "SPLICE_SITE")
-            | important
-        )
+    # if whitelist:
+    #     # if missing columns print issue
+    #     if (
+    #         len(
+    #             set(
+    #                 [
+    #                     "driver",
+    #                     "likely_gof",
+    #                     "clinically_significant",
+    #                     "lof",
+    #                     "likely_lof",
+    #                     "likely_driver",
+    #                 ]
+    #             )
+    #             - set(vcf.columns)
+    #         )
+    #         > 0
+    #     ):
+    #         print(
+    #             "missing columns to perform whitelisting",
+    #             set(tokeep) - set(vcf.columns),
+    #         )
+    #     print("performing whitelisting")
+    #     important = (
+    #         (vcf["driver"] == "Y")
+    #         # | (vcf["gof"] == "Y")
+    #         # TODO: could define it with civic if grabbdd drugs in addition to diseases
+    #         # | (vcf["clinically_significant"] == "Y")
+    #         | (vcf["lof"] == "Y")
+    #         | (
+    #             (vcf["likely_lof"] == "Y")
+    #             & (vcf["hugo_symbol"].isin(tumor_suppressor_list))
+    #         )
+    #         | (
+    #             (vcf["likely_driver"] == "Y")
+    #             & vcf["hugo_symbol"].isin(oncogenic_list + tumor_suppressor_list)
+    #         )
+    #     )
+    # else:
+    #     important = vcf["is_coding"].isna()
+    # if only_coding:
+    #     # drops 99.5% of the variants
+    #     print("only keeping coding mutations")
+    #     loc = loc & (
+    #         (vcf["is_coding"] == "Y")
+    #         | (vcf["variant_info"] == "SPLICE_SITE")
+    #         | important
+    #     )
 
-    # we will drop 99.993% of the variants and 90% of the columns
-    vcf = vcf[loc]
+    # # we will drop 99.993% of the variants and 90% of the columns
+    # vcf = vcf[loc]
 
-    # redefine somatic (not germline or pon and a log pop. af of > max_log_pop_af)
-    # drops 80% of the variants
-    if only_somatic:
-        print("only keeping somatic mutations")
-        loc = (
-            ~((vcf["germline"] == "Y") | (vcf["pon"] == "Y"))
-            & (vcf["popaf"].astype(float) > max_log_pop_af)
-        ) | important
-        vcf = vcf[loc]
-    print(
-        "new size: "
-        + str(len(vcf))
-        + ". removed: {:2f}%".format((1 - (len(vcf) / initsize)) * 100)
-    )
+    # # redefine somatic (not germline or pon and a log pop. af of > max_log_pop_af)
+    # # drops 80% of the variants
+    # if only_somatic:
+    #     print("only keeping somatic mutations")
+    #     loc = (
+    #         ~((vcf["germline"] == "Y") | (vcf["pon"] == "Y"))
+    #         & (vcf["popaf"].astype(float) > max_log_pop_af)
+    #     ) | important
+    #     vcf = vcf[loc]
+    # print(
+    #     "new size: "
+    #     + str(len(vcf))
+    #     + ". removed: {:2f}%".format((1 - (len(vcf) / initsize)) * 100)
+    # )
 
     # subsetting
     vcf = vcf[list(tokeep.keys())]
