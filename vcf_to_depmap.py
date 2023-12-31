@@ -975,7 +975,7 @@ def to_maf(
     # )
 
     # subsetting
-    vcf = vcf[list(tokeep.keys())]
+    vcf = vcf[list(set(vcf.columns.tolist()).intersection(tokeep.keys()))]
 
     # setting the right type
     for k, v in tokeep.items():
