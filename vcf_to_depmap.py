@@ -601,7 +601,7 @@ def improve(
     # )
 
     # # DNArepair
-    # vcf["dna_repair"] = ""
+    vcf["dna_repair"] = ""
     # loc = ~(vcf["dnarepairgenes_activity_linked_to_omim"] == "")
     # vcf["dna_repair"] = (
     #     vcf.loc[loc, "dnarepairgenes_accession_number_linked_to_ncbi_entrez"]
