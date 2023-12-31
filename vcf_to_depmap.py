@@ -975,13 +975,14 @@ def to_maf(
     # )
 
     # subsetting
-    vcf = vcf[list(set(vcf.columns.tolist()).intersection(tokeep.keys()))]
+    subset = list(set(vcf.columns.tolist()).intersection(tokeep.keys()))
+    vcf = vcf[subset]
 
     # setting the right type
-    for k, v in tokeep.items():
-        vcf[k] = vcf[k].astype(v)
-        if v == "str":
-            vcf[k] = vcf[k].replace(",", "%2C")
+    # for k, v in tokeep.items():
+    #     vcf[k] = vcf[k].astype(v)
+    #     if v == "str":
+    #         vcf[k] = vcf[k].replace(",", "%2C")
     vcf.to_csv(sample_id + "-maf-coding_somatic-subset.csv.gz", **kwargs)
 
 
