@@ -832,11 +832,11 @@ def improve(
     #     vcf["structural_relation"] != "", "associated_with"
     # ] += "structural_relation;"
 
-    # vcf["is_coding"] = ""
+    vcf["is_coding"] = ""
     # vcf.loc[vcf["gencode_34_proteinchange"] != "", "is_coding"] = "Y"
 
     # parse clndisdbincl and correct None values
-    # vcf.loc[vcf.clndisdbincl.isnull(), 'clndisdbincl'] = ''
+    vcf.loc[vcf.clndisdbincl.isnull(), 'clndisdbincl'] = ''
     # else it is an oncokb value
 
     # somatic_score
