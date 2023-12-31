@@ -753,6 +753,7 @@ def improve(
     # ] = "Y"
 
     # generic annotation
+    print(vcf.columns.tolist())
     if "oc_spliceai__ds_ag" in vcf.columns.tolist():
         subvcf = vcf[(vcf["oc_spliceai__ds_ag"] != "") & (vcf["multiallelic"] != "Y")]
         loc = subvcf[
@@ -794,16 +795,16 @@ def improve(
         vcf.loc[(vcf[name] == "Y"), "likely_driver"] = "Y"
 
     if "likely_driver" in vcf.columns.tolist():
-        vcf.loc[
-            (vcf["likely_driver"] == "Y")
-            & vcf["gencode_34_hugosymbol"].isin(tumor_suppressor_list),
-            "likely_lof",
-        ] = "Y"
-        vcf.loc[
-            (vcf["likely_driver"] == "Y")
-            & vcf["gencode_34_hugosymbol"].isin(oncogene_list),
-            "likely_gof",
-        ] = "Y"
+        # vcf.loc[
+        #     (vcf["likely_driver"] == "Y")
+        #     & vcf["gencode_34_hugosymbol"].isin(tumor_suppressor_list),
+        #     "likely_lof",
+        # ] = "Y"
+        # vcf.loc[
+        #     (vcf["likely_driver"] == "Y")
+        #     & vcf["gencode_34_hugosymbol"].isin(oncogene_list),
+        #     "likely_gof",
+        # ] = "Y"
         vcf.loc[
             (vcf["likely_driver"] == "Y"),  # | (vcf["clinically_significant"] == "Y"),
             "associated_with",
@@ -827,12 +828,12 @@ def improve(
         vcf.loc[loc_g, "associated_with"] += "gwas;"
 
     vcf.loc[vcf["dna_repair"] != "", "associated_with"] += "dna_repair;"
-    vcf.loc[
-        vcf["structural_relation"] != "", "associated_with"
-    ] += "structural_relation;"
+    # vcf.loc[
+    #     vcf["structural_relation"] != "", "associated_with"
+    # ] += "structural_relation;"
 
-    vcf["is_coding"] = ""
-    vcf.loc[vcf["gencode_34_proteinchange"] != "", "is_coding"] = "Y"
+    # vcf["is_coding"] = ""
+    # vcf.loc[vcf["gencode_34_proteinchange"] != "", "is_coding"] = "Y"
 
     # parse clndisdbincl and correct None values
     # vcf.loc[vcf.clndisdbincl.isnull(), 'clndisdbincl'] = ''
